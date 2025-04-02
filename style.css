@@ -1,0 +1,118 @@
+body {
+    padding-bottom: 60px;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #343a40;
+    color: white;
+    padding: 15px 0;
+}
+
+.expense-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.expense-description {
+    font-weight: bold;
+    flex: 2;
+}
+
+.expense-amount {
+    flex: 1;
+    text-align: center;
+}
+
+.expense-payer {
+    flex: 1;
+    text-align: center;
+    font-style: italic;
+}
+
+.expense-share {
+    flex: 1;
+    text-align: right;
+    color: #007bff;
+}
+.date-cont{
+    width: 100%;
+    
+    margin: auto;
+    border: 1px solid gray;
+    border-radius: 20px;
+    padding: 7px;
+}
+.nav-item:hover{
+    background-color: #343a40;
+} 
+.nav-item:hover .nav-link {
+    color: white;
+}
+.daterangepicker {
+    color: black !important;
+}
+
+.daterangepicker td.available {
+    color: black !important;
+}
+
+.daterangepicker .ranges li,
+.daterangepicker .calendar td,
+.daterangepicker .calendar th {
+    color: black !important;
+}
+
+.daterange-container {
+    display: flex;
+    justify-content: space-between;
+    width: 16rem;
+    border: 1px solid #dadcdf;
+    border-radius: 4px;
+    padding: 3px;
+}
+
+.daterange-input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.daterange-input {
+    width: 100%;
+    padding-right: 30px;
+    border: none;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: border-color 0.3s;
+}
+
+.daterange-input:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.calendar-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 16px;
+    cursor: pointer;
+}
+
+
+.daterangepicker .calendar-table {
+    width: auto !important;
+}
+
+.daterangepicker .btn {
+    font-size: 12px;
+}
