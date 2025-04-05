@@ -43,6 +43,19 @@ body {
     text-align: right;
     color: #007bff;
 }
+/* Add additional custom styling if needed, for example: */
+.card {
+    border-radius: 8px;
+}
+
+.card-title {
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 14px;
+}
+
 .date-cont{
     width: 100%;
     
@@ -116,3 +129,133 @@ body {
 .daterangepicker .btn {
     font-size: 12px;
 }
+.group-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.group-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.group-card h5 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.group-card p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.group-card .btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+}
+
+.group-card .btn:hover {
+    background-color: #0056b3;
+}
+
+.group-card .icon-container {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+/* Card background colors */
+.card-family {
+    background-color: #fce4ec;
+}
+.card-friends {
+    background-color: #e3f2fd;
+}
+.card-work {
+    background-color: #e8f5e9;
+}
+.card-gym {
+    background-color: #fff3e0;
+}
+.card-travel {
+    background-color: #ffebee;
+}
+.card-project {
+    background-color: #e1f5fe;
+}
+
+ 
+/* Custom style for the collapsed menu on mobile screens */
+@media (max-width: 767px) {
+    .navbar-collapse {
+        position: fixed;
+        top: 0;
+        left: -100%; /* Hide the menu offscreen initially */
+        width: 250px; /* Menu width */
+        height: 100%;
+        background-color: #f8f9fa;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* When the menu is expanded, slide it in */
+    .navbar-collapse.show {
+        left: 0; /* Slide the menu in */
+    }
+}
+
+.expense-card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+    transition: transform 0.2s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.expense-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.expense-card h5 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.expense-card p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.expense-card .btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    background-color: #007bff;
+    color: white;
+}
+
+.expense-card .btn:hover {
+    background-color: #0056b3;
+}
+
+.expense-card .icon-container {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
