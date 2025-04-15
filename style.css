@@ -259,3 +259,13 @@ body {
     margin-bottom: 15px;
 }
 
+  .horizontal-scroll-container .expense-card {
+    min-width: 300px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+  }
+.expense-card {
+  border-radius: 10px;
+}
+
+

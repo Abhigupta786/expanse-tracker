@@ -14,15 +14,46 @@
 document.getElementById("daterange").onfocus = function () {
     this.blur();
 };
+// Dropdown toggle functionality using JavaScript
+document.getElementById('userDropdownBtn').addEventListener('click', function () {
+    const dropdownMenu = document.getElementById('userDropdownMenu');
+    const currentDisplay = dropdownMenu.style.display;
+
+    // Toggle the dropdown menu visibility
+    if (currentDisplay === 'none' || currentDisplay === '') {
+        dropdownMenu.style.display = 'block';
+    } else {
+        dropdownMenu.style.display = 'none';
+    }
+});
+
+// Optional: Close dropdown when clicking outside
+document.addEventListener('click', function (event) {
+    const dropdownMenu = document.getElementById('userDropdownMenu');
+    const dropdownButton = document.getElementById('userDropdownBtn');
+    if (!dropdownMenu.contains(event.target) && !dropdownButton.contains(event.target)) {
+        dropdownMenu.style.display = 'none';
+    }
+});
 document.addEventListener("DOMContentLoaded", function () {
+    // Select the navbar-toggler (hamburger button) and navbar-collapse (menu)
     let navbarToggler = document.querySelector(".navbar-toggler");
     let navbarCollapse = document.querySelector("#navbarNav");
 
+    // Add event listener for clicking the hamburger icon
     navbarToggler.addEventListener("click", function () {
-        navbarCollapse.classList.toggle("show");
+        // Toggle the 'show' class to make the menu appear/disappear
+        if (navbarCollapse.classList.contains("show")) {
+            // If 'show' is already there, remove it (forcefully)
+            navbarCollapse.classList.remove("show");
+        } else {
+            // If 'show' is not there, add it (forcefully)
+            navbarCollapse.classList.add("show");
+        }
     });
 });
 $(document).ready(function () {
+
     const expenses = [
         { description: "Dinner", amount: 1200, payer: "Amit", share: 400 },
         { description: "Movie Tickets", amount: 800, payer: "Akhil", share: 200 },
@@ -38,15 +69,15 @@ $(document).ready(function () {
             ['#e8f5e9', '#fff3e0'],  // Light Green and Light Peach (work and gym)
             ['#ffebee', '#e1f5fe'],  // Light Red and Light Sky Blue (travel and project)
         ];
-    
+
         // Randomly select a pair of complementary colors
         const pair = colorPairs[Math.floor(Math.random() * colorPairs.length)];
-    
+
         // Return a random color from the pair (just one color at a time)
         return pair[Math.floor(Math.random() * pair.length)];
     }
-        
-        
+
+
     function loadExpenses() {
         let expenseHTML = expenses.map(({ description, amount, payer, share }) => `
             <div class="col-md-4 mb-4">
@@ -66,15 +97,24 @@ $(document).ready(function () {
                 </div>
             </div>
         `).join('');
-    
+
         // Update the expenses container with the generated expense HTML
         $("#expenses-container").html(expenseHTML);
     }
-        
+
     function setGreeting() {
         const hour = new Date().getHours();
         const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
         $("#greeting").text(`${greeting}, ${$("#userName").text()}!`);
+    }
+    function updateUserAvatar(fullName) {
+        // Split the full name by space and take the first letter of each word
+        const nameParts = fullName.split(" ");
+        const initials = nameParts.map(part => part.charAt(0).toUpperCase()).join(""); // Concatenate the first letter of each part
+
+        // Update the initial in the circle and the username in the dropdown
+        document.getElementById('user-initial').textContent = initials;
+        //document.getElementById('user-name').textContent = fullName; // If you want to display full name in the dropdown
     }
 
     function setupDateRangePicker() {
@@ -104,14 +144,46 @@ $(document).ready(function () {
 
         $('#daterange').val(`${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
     }
+    const micon = "bi-cash-coin";
     const groups = [
-        { name: 'Family Trip', people: ['Akhil', 'Priya', 'Rohit'], icon: 'bi bi-house-door', cardClass: 'card-family' },
-        { name: 'Friends Gathering', people: ['Akhil', 'Aman', 'Neha'], icon: 'bi bi-person-heart', cardClass: 'card-friends' },
-        { name: 'Work Expenses', people: ['Akhil', 'Sarah', 'John'], icon: 'bi bi-briefcase', cardClass: 'card-work' },
-        { name: 'Gym Group', people: ['Akhil', 'Raj', 'Mike'], icon: 'bi bi-person-dash', cardClass: 'card-gym' },
-        { name: 'Travel Expenses', people: ['Akhil', 'Sita', 'Ram'], icon: 'bi bi-person-check', cardClass: 'card-travel' },
-        { name: 'Project Team', people: ['Akhil', 'Jasmine', 'Sam'], icon: 'bi bi-person-check', cardClass: 'card-project' }
+        { name: 'Family Trip', people: ['Akhil', 'Priya', 'Rohit'], icon: micon, cardClass: 'card-family' },
+        { name: 'Friends Gathering', people: ['Akhil', 'Aman', 'Neha'], icon: micon, cardClass: 'card-friends' },
+        { name: 'Work Expenses', people: ['Akhil', 'Sarah', 'John'], icon: micon, cardClass: 'card-work' },
+        { name: 'Gym Group', people: ['Akhil', 'Raj', 'Mike'], icon: micon, cardClass: 'card-gym' },
+        { name: 'Travel Expenses', people: ['Akhil', 'Sita', 'Ram'], icon: micon, cardClass: 'card-travel' },
+        { name: 'Project Team', people: ['Akhil', 'Jasmine', 'Sam'], icon: micon, cardClass: 'card-project' }
     ];
+
+    function loadVerticalExpenses() {
+        const container = $("#vertical-expenses");
+        container.empty(); // Clear any old cards
+
+        expenses.forEach(({ description, amount, payer, share }) => {
+            const card = $(`
+                <div class="col-12">
+                    <div class="card expense-card1 shadow-sm p-3" style="background: ${getRandomColor()};">
+                        <div class="card-body">
+                            <h5 class="card-title">${description}</h5>
+                            <div class="d-flex justify-space-between">
+                            <p class="card-text text-dark">
+                                <strong>Amount:</strong> ₹${amount}<br>
+                                <strong>Paid by:</strong> ${payer}<br>
+                                <strong>Your Share:</strong> ₹${share}
+                            </p>
+                            <div class="text-center">
+                                <button class="btn btn-outline-dark btn-sm">Details</button>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `);
+            container.append(card);
+        });
+    }
+
+
+
 
     // Function to generate the group cards
     function createGroupCards() {
@@ -159,32 +231,55 @@ $(document).ready(function () {
     const groupsLink = document.getElementById('groupsLink');
     const homeSection = document.getElementById('home');
     const groupSection = document.getElementById('group');
-
-    homeLink.addEventListener('click', function(e) {
+    const expensesLink = document.getElementById('expensesLink');
+    const expenseSection = document.getElementById('expense-section');
+    homeLink.addEventListener('click', function (e) {
         e.preventDefault();
         homeSection.style.display = 'block';
         groupSection.style.display = 'none';
+        expenseSection.style.display = 'none';
         homeLink.classList.add('active');
         groupsLink.classList.remove('active');
+        expensesLink.classList.remove('active');
     });
 
-    groupsLink.addEventListener('click', function(e) {
+    groupsLink.addEventListener('click', function (e) {
         e.preventDefault();
         homeSection.style.display = 'none';
         groupSection.style.display = 'block';
+        expenseSection.style.display = 'none';
         groupsLink.classList.add('active');
         homeLink.classList.remove('active');
+        expensesLink.classList.remove('active');
     });
 
     // Default to the Home section on page load
     homeSection.style.display = 'block';
     groupSection.style.display = 'none';
+    expenseSection.style.display = 'none';
+    // Reference to the new section
+
+
+    // Navigation handler
+    expensesLink.addEventListener('click', function (e) {
+        loadVerticalExpenses();
+        e.preventDefault();
+        homeSection.style.display = 'none';
+        groupSection.style.display = 'none';
+        expenseSection.style.display = 'block';
+
+        // Active link styles
+        homeLink.classList.remove('active');
+        groupsLink.classList.remove('active');
+        expensesLink.classList.add('active');
+    });
 
     // Initialize functions
     loadExpenses();
     setGreeting();
     setupDateRangePicker();
-    
-     
+    updateUserAvatar("Akhil Sharma");
+
+
 });
 
