@@ -87,14 +87,27 @@
   </section>
    
   <!-- Expenses Section -->
-  <section id="expense-section" class="page-section" style="display: none;">
-    <div class="container mt-4">
-      <h1 class="text-center mb-4">All Expenses</h1>
-      <div id="vertical-expenses" class="row g-4">
-        <!-- JS will inject one-card-per-row layout here -->
+<section id="expense-section" class="page-section" style="display: none;">
+  <div class="container mt-4">
+    <h4 class="mb-4">All Expenses</h4>
+
+    <!-- Date Range Filter -->
+    <div class="row mb-4 align-items-center">
+      <div class="col-md-4">
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+          <input type="text" id="expenseDateFilter" class="form-control" placeholder="Select date range" readonly />
+        </div>
       </div>
     </div>
-  </section>
+
+    <div id="vertical-expenses" class="row">
+      <!-- Expense cards will be injected here -->
+    </div>
+  </div>
+</section>
+
+
 
 
   <!-- Groups Section -->
@@ -111,11 +124,7 @@
     </div>
   </section>
 
-  <script>
-    // Group Data
-
-  </script>
-
+   
   <!-- Bootstrap JS and Popper.js -->
   <script src="script.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
