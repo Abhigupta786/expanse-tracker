@@ -38,19 +38,35 @@ document.addEventListener('click', function (event) {
 document.addEventListener("DOMContentLoaded", function () {
     // Select the navbar-toggler (hamburger button) and navbar-collapse (menu)
     let navbarToggler = document.querySelector(".navbar-toggler");
-    let navbarCollapse = document.querySelector("#navbarNav");
+    let navbarCollapse = document.querySelector("#navbarSupportedContent");
 
-    // Add event listener for clicking the hamburger icon
-    navbarToggler.addEventListener("click", function () {
-        // Toggle the 'show' class to make the menu appear/disappear
-        if (navbarCollapse.classList.contains("show")) {
-            // If 'show' is already there, remove it (forcefully)
-            navbarCollapse.classList.remove("show");
-        } else {
-            // If 'show' is not there, add it (forcefully)
-            navbarCollapse.classList.add("show");
-        }
-    });
+    // Toggle navbar visibility
+navbarToggler.addEventListener("click", function (event) {
+    event.stopPropagation(); // Prevent immediate closing when toggler is clicked
+    if (navbarCollapse.style.display === 'block') {
+        navbarCollapse.style.display = 'none';
+    } else {
+        navbarCollapse.style.display = 'block';
+    }
+});
+
+// Hide navbar when clicking anywhere outside OR inside a nav link
+document.addEventListener("click", function (event) {
+    const isClickInsideNavbar = navbarCollapse.contains(event.target);
+    const isClickOnToggler = navbarToggler.contains(event.target);
+
+    // If click is outside navbar AND not on the toggler
+    if (!isClickInsideNavbar && !isClickOnToggler) {
+        navbarCollapse.style.display = 'none';
+    }
+
+    // Optional: close if any nav item is clicked (even inside navbar)
+    if (event.target.tagName === 'A' || event.target.classList.contains('nav-link')) {
+        navbarCollapse.style.display = 'none';
+    }
+});
+
+    
 });
 $(document).ready(function () {
 

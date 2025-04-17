@@ -211,20 +211,12 @@ body {
 /* Custom style for the collapsed menu on mobile screens */
 @media (max-width: 767px) {
     .navbar-collapse {
-        position: fixed;
-        top: 0;
-        left: -100%; /* Hide the menu offscreen initially */
-        width: 250px; /* Menu width */
-        height: 100%;
         background-color: #f8f9fa;
         transition: left 0.3s ease-in-out;
         box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
     }
-
-    /* When the menu is expanded, slide it in */
-    .navbar-collapse.show {
-        left: 0; /* Slide the menu in */
-    }
+    
+     
 }
 
 .expense-card {
@@ -295,4 +287,3 @@ body {
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
   
-
