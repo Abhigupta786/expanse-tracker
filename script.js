@@ -15,26 +15,26 @@ document.getElementById("daterange").onfocus = function () {
     this.blur();
 };
 // Dropdown toggle functionality using JavaScript
-document.getElementById('userDropdownBtn').addEventListener('click', function () {
-    const dropdownMenu = document.getElementById('userDropdownMenu');
-    const currentDisplay = dropdownMenu.style.display;
+// document.getElementById('userDropdownBtn').addEventListener('click', function () {
+//     const dropdownMenu = document.getElementById('userDropdownMenu');
+//     const currentDisplay = dropdownMenu.style.display;
 
-    // Toggle the dropdown menu visibility
-    if (currentDisplay === 'none' || currentDisplay === '') {
-        dropdownMenu.style.display = 'block';
-    } else {
-        dropdownMenu.style.display = 'none';
-    }
-});
+//     // Toggle the dropdown menu visibility
+//     if (currentDisplay === 'none' || currentDisplay === '') {
+//         dropdownMenu.style.display = 'block';
+//     } else {
+//         dropdownMenu.style.display = 'none';
+//     }
+// });
 
 // Optional: Close dropdown when clicking outside
-document.addEventListener('click', function (event) {
-    const dropdownMenu = document.getElementById('userDropdownMenu');
-    const dropdownButton = document.getElementById('userDropdownBtn');
-    if (!dropdownMenu.contains(event.target) && !dropdownButton.contains(event.target)) {
-        dropdownMenu.style.display = 'none';
-    }
-});
+// document.addEventListener('click', function (event) {
+//     const dropdownMenu = document.getElementById('userDropdownMenu');
+//     const dropdownButton = document.getElementById('userDropdownBtn');
+//     if (!dropdownMenu.contains(event.target) && !dropdownButton.contains(event.target)) {
+//         dropdownMenu.style.display = 'none';
+//     }
+// });
 document.addEventListener("DOMContentLoaded", function () {
     // Select the navbar-toggler (hamburger button) and navbar-collapse (menu)
     let navbarToggler = document.querySelector(".navbar-toggler");
@@ -50,21 +50,21 @@ navbarToggler.addEventListener("click", function (event) {
     }
 });
 
-// Hide navbar when clicking anywhere outside OR inside a nav link
-document.addEventListener("click", function (event) {
-    const isClickInsideNavbar = navbarCollapse.contains(event.target);
-    const isClickOnToggler = navbarToggler.contains(event.target);
+// // Hide navbar when clicking anywhere outside OR inside a nav link
+// document.addEventListener("click", function (event) {
+//     const isClickInsideNavbar = navbarCollapse.contains(event.target);
+//     const isClickOnToggler = navbarToggler.contains(event.target);
 
-    // If click is outside navbar AND not on the toggler
-    if (!isClickInsideNavbar && !isClickOnToggler) {
-        navbarCollapse.style.display = 'none';
-    }
+//     // If click is outside navbar AND not on the toggler
+//     if (!isClickInsideNavbar && !isClickOnToggler) {
+//         navbarCollapse.style.display = 'none';
+//     }
 
-    // Optional: close if any nav item is clicked (even inside navbar)
-    if (event.target.tagName === 'A' || event.target.classList.contains('nav-link')) {
-        navbarCollapse.style.display = 'none';
-    }
-});
+//     // Optional: close if any nav item is clicked (even inside navbar)
+//     if (event.target.tagName === 'A' || event.target.classList.contains('nav-link')) {
+//         navbarCollapse.style.display = 'none';
+//     }
+// });
 
     
 });
@@ -335,7 +335,15 @@ $(document).ready(function () {
     
         setupExpenseDateRangePicker(); // 🆕 Date filter setup on open
     });
-    
+    document.querySelectorAll('.logout-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            debugger;
+          localStorage.removeItem('token');
+          location.reload();
+        });
+      });
+      
+      
 
     // Initialize functions
     loadExpenses();
