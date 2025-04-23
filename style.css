@@ -172,7 +172,10 @@ body {
     font-size: 1rem;
     color: #666;
 }
-
+.modal-backdrop.show {
+    background-color: rgba(0, 0, 0, 0.6);
+  }
+  
 /* .group-card .btn {
     margin-top: 15px;
     padding: 10px 20px;
