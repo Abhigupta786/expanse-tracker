@@ -1,4 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
+  function addMemberIcon(email, targetClass) {
+    const trimmedEmail = email.trim();
+    if (trimmedEmail) {
+      const initials = trimmedEmail.slice(0, 2).toUpperCase();
+  
+      const icon = document.createElement('div');
+      icon.className = 'rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2';
+      icon.style.width = '40px';
+      icon.style.height = '40px';
+      icon.textContent = initials;
+  
+      const container = document.querySelector(`.${targetClass}`);
+      if (container) {
+        container.appendChild(icon);
+      }
+    }
+  }
+  
   function showLoading(message = "Loading...") {
     const loadingModalEl = document.getElementById('loadingModal');
     loadingModalEl.querySelector('p').textContent = message;
@@ -116,7 +134,108 @@ document.addEventListener("DOMContentLoaded", function () {
           signupModal.show();
         });
     });
+    // Show modal on button click
 
   }
+
+  document.getElementById('addExpenseBtn').addEventListener('click', function () {
+    debugger;
+    const modal = new bootstrap.Modal(document.getElementById('addExpenseModal'));
+    modal.show();
+  });
+
+  // Handle Add Expense Form submission
+  document.getElementById('addExpenseForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    //const loadingModal = showLoading();
+    const title = document.getElementById('expenseTitle').value;
+    // const description = document.getElementById('expenseDescription').value;
+    const amount = document.getElementById('expenseAmount').value;
+    const group = document.getElementById('expenseGroup').value;
+
+    // You can make an API call here to actually save it to backend
+
+    // Close modal
+    bootstrap.Modal.getInstance(document.getElementById('addExpenseModal')).hide();
+    debugger;
+    // Show success alert
+    //hideLoading(loadingModal);
+    Swal.fire({
+      icon: 'success',
+      title: 'Expense Added',
+      text: `${title} added to ${group}`,
+      showConfirmButton: false,
+      timer: 2000
+    });
+    //hideLoading(loadingModal);
+    // Optional: reset form
+    document.getElementById('addExpenseForm').reset();
+  });
+
+  document.getElementById('joinGroupBtn').addEventListener('click', () => {
+    const modal = new bootstrap.Modal(document.getElementById('joinGroupModal'));
+    modal.show();
+  });
+
+  document.getElementById('createGroupBtn').addEventListener('click', () => {
+    const modal = new bootstrap.Modal(document.getElementById('createGroupModal'));
+    modal.show();
+  });
+
+  // Handle Join Group Request
+  document.getElementById('joinGroupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    bootstrap.Modal.getInstance(document.getElementById('joinGroupModal')).hide();
+
+    Swal.fire({
+      icon: 'info',
+      title: 'Request Sent',
+      text: 'Your request to join the group has been sent!',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  });
+
+  // Handle Add Member Button
+  document.getElementById('addMemberBtn').addEventListener('click', () => {
+    const emailInput = document.getElementById('memberEmail');
+    const email = emailInput.value.trim();
+
+    if (email) {
+      addMemberIcon(email, 'memberIcons');
+
+    }
+  });
+
+  document.getElementById('addMemberBtn2').addEventListener('click', () => {
+    debugger;
+    const emailInput = document.getElementById('newMemberEmail');
+    const email = emailInput.value.trim();
+
+    if (email) {
+      addMemberIcon(email, 'memberIcons2');
+
+    }
+  });
+
+  // Handle Create Group Submission
+  document.getElementById('createGroupForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    const groupName = document.getElementById('groupName').value.trim();
+    bootstrap.Modal.getInstance(document.getElementById('createGroupModal')).hide();
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Created',
+      text: `Group "${groupName}" Created!`,
+      showConfirmButton: false,
+      timer: 2000
+    });
+
+    // Optionally reset form
+    this.reset();
+    document.getElementById('memberIcons').innerHTML = '';
+  });
+
 });
 

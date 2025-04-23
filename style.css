@@ -1,7 +1,9 @@
 body {
     padding-bottom: 60px;
 }
-
+.text-center{
+    text-align: start !important;
+}
 .footer {
     position: fixed;
     bottom: 0;
@@ -10,7 +12,10 @@ body {
     color: white;
     padding: 15px 0;
 }
-
+.scrollable-select {
+    max-height: 200px; /* Adjust as needed */
+    overflow-y: auto;
+  }
 .expense-card {
     display: flex;
     justify-content: space-between;
@@ -168,14 +173,14 @@ body {
     color: #666;
 }
 
-.group-card .btn {
+/* .group-card .btn {
     margin-top: 15px;
     padding: 10px 20px;
     border-radius: 25px;
     font-weight: bold;
     background-color: #007bff;
     color: white;
-}
+} */
 
 .group-card .btn:hover {
     background-color: #0056b3;

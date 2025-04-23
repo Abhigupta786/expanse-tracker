@@ -41,53 +41,55 @@ document.addEventListener("DOMContentLoaded", function () {
     let navbarCollapse = document.querySelector("#navbarSupportedContent");
 
     // Toggle navbar visibility
-navbarToggler.addEventListener("click", function (event) {
-    event.stopPropagation(); // Prevent immediate closing when toggler is clicked
-    if (navbarCollapse.style.display === 'block') {
-        navbarCollapse.style.display = 'none';
-    } else {
-        navbarCollapse.style.display = 'block';
-    }
-});
+    navbarToggler.addEventListener("click", function (event) {
+        event.stopPropagation(); // Prevent immediate closing when toggler is clicked
+        if (navbarCollapse.style.display === 'block') {
+            navbarCollapse.style.display = 'none';
+        } else {
+            navbarCollapse.style.display = 'block';
+        }
+    });
 
-// // Hide navbar when clicking anywhere outside OR inside a nav link
-// document.addEventListener("click", function (event) {
-//     const isClickInsideNavbar = navbarCollapse.contains(event.target);
-//     const isClickOnToggler = navbarToggler.contains(event.target);
+    // // Hide navbar when clicking anywhere outside OR inside a nav link
+    // document.addEventListener("click", function (event) {
+    //     const isClickInsideNavbar = navbarCollapse.contains(event.target);
+    //     const isClickOnToggler = navbarToggler.contains(event.target);
 
-//     // If click is outside navbar AND not on the toggler
-//     if (!isClickInsideNavbar && !isClickOnToggler) {
-//         navbarCollapse.style.display = 'none';
-//     }
+    //     // If click is outside navbar AND not on the toggler
+    //     if (!isClickInsideNavbar && !isClickOnToggler) {
+    //         navbarCollapse.style.display = 'none';
+    //     }
 
-//     // Optional: close if any nav item is clicked (even inside navbar)
-//     if (event.target.tagName === 'A' || event.target.classList.contains('nav-link')) {
-//         navbarCollapse.style.display = 'none';
-//     }
-// });
+    //     // Optional: close if any nav item is clicked (even inside navbar)
+    //     if (event.target.tagName === 'A' || event.target.classList.contains('nav-link')) {
+    //         navbarCollapse.style.display = 'none';
+    //     }
+    // });
 
-    
+
 });
 $(document).ready(function () {
-
+    let currentStartDate;
+    let currentEndDate;
     const expenses = [
-        { description: "Dinner", amount: 1200, payer: "Amit", share: 400, date: "2024-04-12" },
-        { description: "Movie Tickets", amount: 800, payer: "Akhil", share: 200, date: "2024-03-28" },
-        { description: "Groceries", amount: 1500, payer: "Rahul", share: 500, date: "2024-04-01" },
-        { description: "Cab Ride", amount: 600, payer: "Neha", share: 150, date: "2024-04-14" }
+        { description: "Dinner", amount: 1200, payer: "Amit", share: 400, date: "2024-04-12", group: "Friends Gathering" },
+        { description: "Movie Tickets", amount: 800, payer: "Akhil", share: 200, date: "2024-03-28", group: "Friends Gathering" },
+        { description: "Groceries", amount: 1500, payer: "Rahul", share: 500, date: "2024-04-01", group: "Family Trip" },
+        { description: "Cab Ride", amount: 600, payer: "Neha", share: 150, date: "2024-04-14", group: "Work Expenses" }
     ];
     
+
 
     const indianHolidays = new Set(['01/26/2024', '03/25/2024', '08/15/2024', '10/02/2024', '10/31/2024']);
     function getRandomColor() {
         // Card background colors (from your provided colors)
-         
+
         return "#f9f9f9";
     }
 
 
     function loadExpenses() {
-        let expenseHTML = expenses.map(({ description, amount, payer, share, date }) => `
+        let expenseHTML = expenses.map(({ description, amount, payer, share, date, group }) => `
             <div class="col-md-4 mb-4">
                 <div class="rounded-4 recent-expense-card border-0 shadow-sm p-4 h-100" style="background: ${getRandomColor()}; transition: all 0.3s ease;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
@@ -97,7 +99,8 @@ $(document).ready(function () {
                     <p class="text-secondary mb-2">
                         <strong>Amount:</strong> ₹${amount}<br>
                         <strong>Paid by:</strong> ${payer}<br>
-                        <strong>Your Share:</strong> ₹${share}
+                        <strong>Your Share:</strong> ₹${share}<br>
+                        <strong>Group:</strong> ${group}
                     </p>
                     <div class="text-center mt-3">
                         <button class="btn btn-outline-dark btn-sm">View Details</button>
@@ -109,6 +112,7 @@ $(document).ready(function () {
         $("#expenses-container").html(expenseHTML);
     }
     
+
 
     function setGreeting() {
         const hour = new Date().getHours();
@@ -147,6 +151,8 @@ $(document).ready(function () {
             autoApply: true,
             isInvalidDate: date => date.day() === 0 || indianHolidays.has(date.format('DD/MM/YYYY'))
         }, (start, end) => {
+            currentStartDate=start;
+            currentEndDate=end;
             $('#daterange').val(`${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
         });
 
@@ -166,38 +172,39 @@ $(document).ready(function () {
         const container = $("#vertical-expenses");
         container.empty();
     
-        const filteredExpenses = expenses.filter(({ date }) => {
-            if (!startDate || !endDate) return true;
+        const selectedGroup = $("#groupFilter").val(); // single group
+    
+        const filteredExpenses = expenses.filter(({ date, group }) => {
             const expenseDate = moment(date, "YYYY-MM-DD");
-            return expenseDate.isSameOrAfter(startDate) && expenseDate.isSameOrBefore(endDate);
+    
+            const matchesDate = (!startDate || !endDate) ||
+                (expenseDate.isSameOrAfter(startDate) && expenseDate.isSameOrBefore(endDate));
+    
+            const matchesGroup = !selectedGroup || selectedGroup === group;
+    
+            return matchesDate && matchesGroup;
         });
     
         if (filteredExpenses.length === 0) {
-            container.html(`<div class="col-12 text-center text-muted">No expenses found in this range.</div>`);
+            container.html(`<div class="col-12 text-center text-muted">No expenses found for selected filters.</div>`);
             return;
         }
     
-        const expenseHTML = filteredExpenses.map(({ description, amount, payer, share, date }) => `
+        const expenseHTML = filteredExpenses.map(({ description, amount, payer, share, date, group }) => `
             <div class="col-12">
                 <div class="expense-list-card p-4 mb-4 shadow-sm border rounded bg-light">
-                    
-                    <!-- Top: Title Left, Date Right -->
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <h5 class="mb-0 text-primary">${description}</h5>
                         <div class="text-muted small fw-medium">${moment(date).format("DD MMM YYYY")}</div>
                     </div>
     
-                    <!-- Bottom: Details Row -->
                     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                        
-                        <!-- Left Info (Vertical Stack) -->
                         <div class="d-flex flex-column small fw-medium text-dark" style="min-width: 120px;">
                             <div><strong>Amount:</strong> ₹${amount}</div>
                             <div><strong>Paid by:</strong> ${payer}</div>
                             <div><strong>Your Share:</strong> ₹${share}</div>
+                            <div><strong>Group:</strong> ${group}</div>
                         </div>
-    
-                        <!-- Right Description (Wider Column) -->
                         <div class="flex-grow-1 text-muted" style="font-size: 0.95rem;">
                             ${description}
                         </div>
@@ -208,12 +215,15 @@ $(document).ready(function () {
     
         container.html(expenseHTML);
     }
-    
-    
+    // Group filter change
+    $('#groupFilter').on('change', function () {
+        loadVerticalExpenses(currentStartDate, currentEndDate); // update with your date range vars
+    });
+        
     function setupExpenseDateRangePicker() {
         const start = moment().subtract(29, 'days');
         const end = moment();
-    
+
         const ranges = {
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -223,7 +233,7 @@ $(document).ready(function () {
             'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
             'Lifetime': [moment('2024-01-01'), moment()]
         };
-    
+
         $('#expenseDateFilter').daterangepicker({
             startDate: start,
             endDate: end,
@@ -237,25 +247,30 @@ $(document).ready(function () {
                 format: 'DD/MM/YYYY'
             }
         }, function (start, end) {
+            currentStartDate=start;
+            currentEndDate=end;
             $('#expenseDateFilter').val(`${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
             loadVerticalExpenses(start, end); // Re-load expenses with filtered dates
         });
-    
+
         $('#expenseDateFilter').val(`${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
         loadVerticalExpenses(start, end); // Initial load
     }
-    
+
 
 
     // Function to generate the group cards
+    // 
+    let currentGroup = null;
+
     function createGroupCards() {
         const container = document.getElementById('group-cards-container');
+        container.innerHTML = ''; // Clear existing cards
         groups.forEach(group => {
             const colDiv = document.createElement('div');
             colDiv.classList.add('col-md-4', 'col-sm-6');
 
             const cardDiv = document.createElement('div');
-            //cardDiv.classList.add('group-card', group.cardClass);
             cardDiv.classList.add('group-card');
 
             const iconContainer = document.createElement('div');
@@ -263,7 +278,6 @@ $(document).ready(function () {
 
             const icon = document.createElement('i');
             icon.className = group.icon;
-
             iconContainer.appendChild(icon);
 
             const groupName = document.createElement('h5');
@@ -273,8 +287,24 @@ $(document).ready(function () {
             groupPeople.textContent = 'Involved: ' + group.people.join(', ');
 
             const button = document.createElement('button');
-            button.classList.add('btn', 'btn-primary');
+            button.classList.add('btn', 'btn-outline-primary');
             button.textContent = 'View Details';
+
+            // View Details Modal Trigger
+            button.addEventListener('click', function () {
+                currentGroup = group;
+                document.getElementById('groupDetailsName').textContent = group.name;
+
+                const memberPills = document.getElementById('memberPills');
+                memberPills.innerHTML = '';
+                group.people.forEach(person => {
+                    const pill = createMemberPill(person);
+                    memberPills.appendChild(pill);
+                });
+
+                const modal = new bootstrap.Modal(document.getElementById('groupDetailsModal'));
+                modal.show();
+            });
 
             cardDiv.appendChild(iconContainer);
             cardDiv.appendChild(groupName);
@@ -285,6 +315,62 @@ $(document).ready(function () {
             container.appendChild(colDiv);
         });
     }
+
+    function createMemberPill(email) {
+        const pill = document.createElement('div');
+        pill.className = 'badge bg-primary d-flex align-items-center gap-2 p-2';
+        pill.innerHTML = `
+    <span>${email}</span>
+    <button type="button" class="btn-close btn-close-white btn-sm" aria-label="Remove" title="Remove"></button>
+  `;
+
+        pill.querySelector('button').addEventListener('click', () => {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Are you sure?',
+                text: `Remove ${email} from the group?`,
+                showCancelButton: true,
+                confirmButtonText: 'Yes, remove',
+                cancelButtonText: 'Cancel'
+            }).then(result => {
+                if (result.isConfirmed) {
+                    pill.remove();
+                    currentGroup.people = currentGroup.people.filter(p => p !== email);
+                }
+            });
+        });
+
+        return pill;
+    }
+
+    // Add member logic
+    document.getElementById('addMemberBtn').addEventListener('click', () => {
+        const emailInput = document.getElementById('newMemberEmail');
+        const email = emailInput.value.trim();
+
+        if (email && !currentGroup.people.includes(email)) {
+            const pill = createMemberPill(email);
+            document.getElementById('memberPills').appendChild(pill);
+            currentGroup.people.push(email);
+            emailInput.value = '';
+        }
+    });
+
+    // Save group details
+    document.getElementById('groupDetailsForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const modal = bootstrap.Modal.getInstance(document.getElementById('groupDetailsModal'));
+        modal.hide();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Saved!',
+            text: 'Group details have been updated.',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    });
+
 
     // Call the function to generate the group cards
     createGroupCards();
@@ -328,22 +414,22 @@ $(document).ready(function () {
         homeSection.style.display = 'none';
         groupSection.style.display = 'none';
         expenseSection.style.display = 'block';
-    
+
         homeLink.classList.remove('active');
         groupsLink.classList.remove('active');
         expensesLink.classList.add('active');
-    
+
         setupExpenseDateRangePicker(); // 🆕 Date filter setup on open
     });
     document.querySelectorAll('.logout-btn').forEach(btn => {
         btn.addEventListener('click', function () {
             debugger;
-          localStorage.removeItem('token');
-          location.reload();
+            localStorage.removeItem('token');
+            location.reload();
         });
-      });
-      
-      
+    });
+
+
 
     // Initialize functions
     loadExpenses();
