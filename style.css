@@ -185,34 +185,34 @@ body {
     color: white;
 } */
 
-.group-card .btn:hover {
+/* .group-card .btn:hover {
     background-color: #0056b3;
-}
+} */
 
 .group-card .icon-container {
     font-size: 3rem;
     color: #007bff;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
 }
 
 /* Card background colors */
 .card-family {
-    background-color: #fce4ec;
+    background-color: #f9f9f9;
 }
 .card-friends {
-    background-color: #e3f2fd;
+    background-color: #f9f9f9;
 }
 .card-work {
-    background-color: #e8f5e9;
+    background-color: #f9f9f9;
 }
 .card-gym {
-    background-color: #fff3e0;
+    background-color: #f9f9f9;
 }
 .card-travel {
-    background-color: #ffebee;
+    background-color: #f9f9f9;
 }
 .card-project {
-    background-color: #e1f5fe;
+    background-color: #f9f9f9;
 }
 
  
