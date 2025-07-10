@@ -17,7 +17,6 @@ function mapExpensesToFormat(apiExpenses, currentUser) {
 
 
 async function fetchMyExpenses() {
-    debugger;
 
     try {
         const res = await fetch(`${baseurl}/my-expenses`, {
@@ -46,16 +45,16 @@ async function fetchMyExpenses() {
 }
 
 function loadExpenses() {
-    
+    debugger;
     let expenseHTML = expenses.map(({ description, amount, payer, share, date, group }) => `
             <div class="col-md-4 mb-4">
                 <div class="rounded-4 recent-expense-card border-0 shadow-sm p-4 h-100" style="background: #f9f9f9; transition: all 0.3s ease;">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="fw-bold mb-1">${description}</h5>
+                        <h5 class="fw-bold mb-1">₹${amount}</h5>
                         <small class="text-muted">${moment(date).format("DD MMM YYYY")}</small>
                     </div>
+                    <div>${description}</div>
                     <p class="text-secondary mb-2">
-                        <strong>Amount:</strong> ₹${amount}<br>
                         <strong>Paid by:</strong> ${payer}<br>
                         <strong>Your Share:</strong> ₹${share}<br>
                         <strong>Group:</strong> ${group}
@@ -95,13 +94,12 @@ function loadVerticalExpenses(startDate = null, endDate = null, expenses) {
             <div class="col-12">
                 <div class="expense-list-card p-4 mb-4 shadow-sm border rounded bg-light">
                     <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0 text-primary">${description}</h5>
+                        <h5 class="mb-0 text-primary">₹${amount}</h5>
                         <div class="text-muted small fw-medium">${moment(date).format("DD MMM YYYY")}</div>
                     </div>
     
                     <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
                         <div class="d-flex flex-column small fw-medium text-dark" style="min-width: 120px;">
-                            <div><strong>Amount:</strong> ₹${amount}</div>
                             <div><strong>Paid by:</strong> ${payer}</div>
                             <div><strong>Your Share:</strong> ₹${share}</div>
                             <div><strong>Group:</strong> ${group}</div>

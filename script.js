@@ -145,6 +145,8 @@ if (token) {
             let expense1 = await fetchMyExpenses();
 
             const start = moment().subtract(29, 'days'), end = moment();
+            currentStartDate = start;
+            currentEndDate = end;
             const ranges = {
                 'Today': [moment(), moment()],
                 'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
@@ -165,6 +167,7 @@ if (token) {
                 autoApply: true,
                 isInvalidDate: date => date.day() === 0 || indianHolidays.has(date.format('DD/MM/YYYY'))
             }, (start, end) => {
+                debugger;
                 currentStartDate = start;
                 currentEndDate = end;
                 $('#daterange').val(`${start.format('DD/MM/YYYY')} - ${end.format('DD/MM/YYYY')}`);
@@ -203,79 +206,122 @@ if (token) {
             });
         }
 
-        function loadExpenses(expenses1, start, end) {
+        /* ========= CONFIG (tweak freely) ========= */
+        const EXPENSES_PER_PAGE = 9;  // 3×3 card grid
+        /* ========================================= */
+
+        /** Renders one page of expenses plus pager */
+        function loadExpenses(expensesData, start, end, page = 1) {
+
+            /* ----- FILTER THE FULL LIST ----- */
+            const filtered = expensesData.filter(e => {
+                const d = moment(e.date);
+                return d.isSameOrAfter(start, 'day') && d.isSameOrBefore(end, 'day');
+            });
+
+            /* ----- TOTALS (whole filtered list) ----- */
+            const totals = calcTotals(filtered);
+            updateTotalBoxes(totals);
+
+            /* ----- SLICE FOR THE REQUESTED PAGE ----- */
+            const totalPages = Math.max(1, Math.ceil(filtered.length / EXPENSES_PER_PAGE));
+            page = Math.min(page, totalPages);                     // keep in range
+            const startIdx = (page - 1) * EXPENSES_PER_PAGE;
+            const slice = filtered.slice(startIdx, startIdx + EXPENSES_PER_PAGE);
+
+            /* ----- DRAW CARDS FOR THAT PAGE ----- */
+            $("#expenses-container").html(slice.map((exp, i) => cardHTML(exp, startIdx + i)).join(""));
+
+            /* ----- (RE)WIRE DETAILS BUTTONS ----- */
+            $(".view-details-btn").off("click").on("click", function () {
+                showExpenseDetails(expensesData[this.dataset.index]);  // still points to source array
+            });
+
+            /* ----- BUILD & WIRE PAGER ----- */
+            renderPager(totalPages, page, (targetPage) =>
+                loadExpenses(expensesData, start, end, targetPage));
+        }
+
+        /* ---------- helpers (all local to this feature) ---------- */
+
+        function calcTotals(list) {
+            let totalPaid = 0, totalShare = 0, totalReceive = 0;
             debugger;
-            const filteredExpenses = expenses.filter(expense => {
-                const expenseDate = moment(expense.date);
-                return expenseDate.isSameOrAfter(start, 'day') && expenseDate.isSameOrBefore(end, 'day');
-            });
-            const totalPaid = filteredExpenses.reduce((sum, expense) => {
-                return expense.payer === currentUser ? sum + expense.amount : sum;
-            }, 0);
-
-
-            let totalShare = 0;
-
-            filteredExpenses.forEach(expense => {
-                if (expense.payer !== currentUser) {
-                    expense.allShares.forEach(share => {
-                        if (share.member === currentUser) {
-                            totalShare += Number(share.amount); // add only if current user is a participant, not the payer
-                        }
-                    });
+            list.forEach(e => {
+                if (e.paidBy === currentUser) {
+                    totalPaid += e.amount;
+                    e.share.forEach(s => { if (s.member !== currentUser) totalReceive += +s.amount; });
+                } else {
+                    e.share.forEach(s => { if (s.member === currentUser) totalShare += +s.amount; });
                 }
             });
+            return { totalPaid, totalShare, totalReceive };
+        }
 
-            let totalReceive = 0;
+        function updateTotalBoxes({ totalPaid, totalShare, totalReceive }) {
+            $("#totalExpenseBox").text(`💸 Total Expense:  ₹${totalPaid}`);
+            $("#totalshareBox").text(`💸 Total Payables:  ₹${totalShare}`);
+            $("#totalreceiveBox").text(`💰 You Receive: ₹${totalReceive}`);
+        }
 
-            filteredExpenses.forEach(expense => {
-                if (expense.payer === currentUser) {
-                    expense.allShares.forEach(share => {
-                        if (share.member !== currentUser) {
-                            totalReceive += Number(share.amount); // add only other members' shares
-                        }
-                    });
-                }
-            });
-
-
-            document.getElementById("totalExpenseBox").textContent = `💸 Total Expense:  ₹${totalPaid}`;
-            document.getElementById("totalshareBox").textContent = `💸 Total Payables:  ₹${totalShare}`;
-            document.getElementById("totalreceiveBox").textContent = `💰 You Receive: ₹${totalReceive}`;
-            let expenseHTML = filteredExpenses.map((expense, index) => {
-                const { title, description, amount, paidBy, payer, date, groupName, group } = expense;
-                const formattedDate = moment(date).format("DD MMM YYYY");
-
-                return `
+        function cardHTML(e, globalIndex) {
+            const { title, description, amount, paidBy, payer, date, groupName, group } = e;
+            return `
             <div class="col-md-4 mb-4">
-                <div class="rounded-4 recent-expense-card border-0 shadow-sm p-4 h-100" style="background: #f9f9f9; transition: all 0.3s ease;">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="fw-bold mb-1">${title || description}</h5>
-                        <small class="text-muted">${formattedDate}</small>
-                    </div>
-                    <p class="text-secondary mb-2">
-                        <strong>Amount:</strong> ₹${amount}<br>
-                        <strong>Paid by:</strong> ${paidBy || payer}<br>
-                        <strong>Group:</strong> ${groupName || group}
-                    </p>
-                    <div class="text-center mt-3">
-                        <button class="btn btn-outline-dark btn-sm view-details-btn" data-index="${index}">View Details</button>
-                    </div>
+            <div class="rounded-4 recent-expense-card border-0 shadow-sm p-4 h-100"
+                style="background:#f9f9f9;transition:all .3s;">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                <h5 class="fw-bold mb-1">₹${amount}</h5>
+                <small class="text-muted">${moment(date).format("DD MMM YYYY")}</small>
+                </div>
+                <div>${title || description}</div>
+                <p class="text-secondary mb-2">
+                <strong>Amount:</strong><br>
+                <strong>Paid by:</strong> ${paidBy || payer}<br>
+                <strong>Group:</strong> ${groupName || group}
+                </p>
+                <div class="text-center mt-3">
+                <button class="btn btn-outline-dark btn-sm view-details-btn"
+                        data-index="${globalIndex}">View Details</button>
                 </div>
             </div>
-        `;
-            }).join('');
-
-            $("#expenses-container").html(expenseHTML);
-
-            // Attach event listeners
-            document.querySelectorAll(".view-details-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    const expense = expenses1[btn.dataset.index];
-                    showExpenseDetails(expense);  // 👈 Your reusable SweetAlert function
-                });
-            });
+            </div>`;
         }
+
+        function renderPager(totalPages, activePage, onJump) {
+            const $wrap = $("#expensesPager").empty();
+            if (totalPages <= 1) return;
+
+            const pageBtn = (pg, lbl = pg, disabled = false) =>
+                `<li class="page-item ${disabled ? "disabled" : ""} ${pg === activePage ? "active" : ""}">
+       <button class="page-link" data-jump="${pg}">${lbl}</button>
+     </li>`;
+
+            const prevDis = activePage === 1;
+            const nextDis = activePage === totalPages;
+            let html = `<ul class="pagination justify-content-center mb-0">`;
+            html += pageBtn(activePage - 1, "&laquo;", prevDis);
+
+            let first = Math.max(1, activePage - 2);
+            let last = Math.min(totalPages, first + 4);
+            if (last - first < 4) first = Math.max(1, last - 4);
+
+            for (let p = first; p <= last; p++) html += pageBtn(p);
+            html += pageBtn(activePage + 1, "&raquo;", nextDis);
+            html += `</ul>`;
+
+            $wrap.html(html)
+                .off("click", "button.page-link")
+                .on("click", "button.page-link", function () {
+                    const jump = +$(this).data("jump");
+                    if (!isNaN(jump)) onJump(jump);
+                });
+        }
+
+        /* === call the loader wherever appropriate === */
+        // loadExpenses(allExpenses, startDate, endDate);   // page defaults to 1
+
+
 
         async function fetchMyExpenses() {
             try {
@@ -328,10 +374,10 @@ if (token) {
                 : `<li>Your share: ₹${share}</li>`;
 
             Swal.fire({
-                title: titleLabel,
+                title: `<p><strong>Amount:</strong> ₹${amount}</p>`,
                 html: `
             <div class="text-start">
-                <p><strong>Amount:</strong> ₹${amount}</p>
+                <p>${titleLabel}</p>
                 <p><strong>Paid By:</strong> ${paidLabel}</p>
                 <p><strong>Group:</strong> ${groupLabel}</p>
                 <p><strong>Date:</strong> ${moment(date).format("DD MMM YYYY")}</p>
@@ -347,59 +393,118 @@ if (token) {
 
 
 
-        async function loadVerticalExpenses(startDate = null, endDate = null) {
+        /* ---------- CONFIG ---------- */
+        const ITEMS_PER_PAGE = 10;       // tweak this to show more/less cards
+        let currentPage = 1;        // tracks the page we’re on
+        /* ---------------------------- */
 
-            expenses = await fetchMyExpenses();
+        async function loadVerticalExpenses(startDate = null, endDate = null, page = 1) {
+            currentPage = page;               // record the requested page
+            const expenses = await fetchMyExpenses();   // ① fetch all
 
-            const container = $("#vertical-expenses");
-            container.empty();
-
-            const selectedGroup = $("#groupFilterInput").val(); // single group
-
-            const filteredExpenses = expenses.filter(exp => {
-                const rawDate = new Date(exp.date).toISOString().split('T')[0]; // "YYYY-MM-DD"
-                const expenseDate = moment(rawDate, "YYYY-MM-DD");
+            /* ---------- FILTER ---------- */
+            const selectedGroup = $("#groupFilterInput").val();          // single group name
+            const filtered = expenses.filter(exp => {
+                const raw = new Date(exp.date).toISOString().split('T')[0];
+                const expDate = moment(raw, "YYYY-MM-DD");
 
                 const matchesDate = (!startDate || !endDate) ||
-                    (expenseDate.isSameOrAfter(startDate) && expenseDate.isSameOrBefore(endDate));
-
+                    (expDate.isSameOrAfter(startDate) && expDate.isSameOrBefore(endDate));
                 const matchesGroup = !selectedGroup || selectedGroup === exp.groupName;
-
                 return matchesDate && matchesGroup;
             });
 
-            if (filteredExpenses.length === 0) {
-                container.html(`<div class="col-12 text-center text-muted">No expenses found for selected filters.</div>`);
-                return;
+            /* ---------- PAGINATE ---------- */
+            const totalPages = Math.max(1, Math.ceil(filtered.length / ITEMS_PER_PAGE));
+            const sliceStart = (page - 1) * ITEMS_PER_PAGE;
+            const pageData = filtered.slice(sliceStart, sliceStart + ITEMS_PER_PAGE);
+
+            /* ---------- RENDER CARDS ---------- */
+            const $grid = $("#vertical-expenses").empty();
+            if (pageData.length === 0) {
+                $grid.html(`<div class="col-12 text-center text-muted">
+                      No expenses found for selected filters.
+                    </div>`);
+            } else {
+                const cards = pageData.map(exp => `
+            <div class="col-12">
+              <div class="expense-list-card p-4 mb-4 shadow-sm border rounded bg-light"
+                   ondblclick='showExpenseDetails(${JSON.stringify(exp)})'
+                   style="cursor:pointer;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                  <h5 class="mb-0 text-primary">₹${exp.amount}</h5>
+                  <div class="text-muted small fw-medium">
+                    ${moment(exp.date).format("DD MMM YYYY")}
+                  </div>
+                </div>
+                <div class="flex-grow-1 text-muted" style="font-size:.95rem;">
+                  ${exp.description || exp.title}
+                </div>
+                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                  <div class="d-flex flex-column small fw-medium text-dark" style="min-width:120px;">
+                    <div><strong>Paid by:</strong> ${exp.payer || exp.paidBy}</div>
+                    <div><strong>Your Share:</strong>
+                      ₹${exp.share?.find?.(s => s.member === currentUser)?.amount || exp.share || 'N/A'}
+                    </div>
+                    <div><strong>Group:</strong> ${exp.group || exp.groupName}</div>
+                  </div>
+                </div>
+              </div>
+            </div>`).join('');
+
+                $grid.html(cards);
             }
 
-            const expenseHTML = filteredExpenses.map(exp => `
-            <div class="col-12">
-                <div class="expense-list-card p-4 mb-4 shadow-sm border rounded bg-light"
-                    ondblclick='showExpenseDetails(${JSON.stringify(exp)})' style="cursor: pointer;">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h5 class="mb-0 text-primary">${exp.description || exp.title}</h5>
-                        <div class="text-muted small fw-medium">${moment(exp.date).format("DD MMM YYYY")}</div>
-                    </div>
-
-                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
-                        <div class="d-flex flex-column small fw-medium text-dark" style="min-width: 120px;">
-                            <div><strong>Amount:</strong> ₹${exp.amount}</div>
-                            <div><strong>Paid by:</strong> ${exp.payer || exp.paidBy}</div>
-                            <div><strong>Your Share:</strong> ₹${exp.share?.find?.(s => s.member === currentUser)?.amount || exp.share || 'N/A'}</div>
-                            <div><strong>Group:</strong> ${exp.group || exp.groupName}</div>
-                        </div>
-                        <div class="flex-grow-1 text-muted" style="font-size: 0.95rem;">
-                            ${exp.description || exp.title}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
-
-
-            container.html(expenseHTML);
+            /* ---------- RENDER PAGER ---------- */
+            buildExpensePager(totalPages, page);
         }
+
+        /* helper to build Bootstrap pager */
+        function buildExpensePager(totalPages, activePage) {
+            const $nav = $("#expensePagination").empty();
+            if (totalPages <= 1) return;      // nothing to paginate
+
+            // utility to emit one page button
+            const pageBtn = (page, label = page, disabled = false, extra = '') => `
+        <li class="page-item ${disabled ? 'disabled' : ''} ${page === activePage ? 'active' : ''}">
+          <button class="page-link" ${extra} data-go="${page}">${label}</button>
+        </li>`;
+
+            const prevDisabled = activePage === 1;
+            const nextDisabled = activePage === totalPages;
+
+            let html = `<ul class="pagination justify-content-center mb-0">`;
+            html += pageBtn(activePage - 1, "&laquo;", prevDisabled, 'aria-label="Previous"');
+
+            // show up to 5 numbered buttons centred around the active page
+            let start = Math.max(1, activePage - 2);
+            let end = Math.min(totalPages, start + 4);
+            if (end - start < 4) start = Math.max(1, end - 4);
+
+            for (let p = start; p <= end; p++) html += pageBtn(p);
+
+            html += pageBtn(activePage + 1, "&raquo;", nextDisabled, 'aria-label="Next"');
+            html += `</ul>`;
+
+            $nav.html(html);
+
+            /* click handler (delegated) */
+            $nav.off("click", "button.page-link")           // clear previous
+                .on("click", "button.page-link", function () {
+                    const go = Number($(this).data("go"));
+                    if (!isNaN(go) && go >= 1 && go <= totalPages) {
+                        loadVerticalExpenses(
+                            $("#startDate").val() || null,   // adapt if you keep these IDs
+                            $("#endDate").val() || null,
+                            go
+                        );
+                    }
+                });
+        }
+
+        // /* ---------- FIRST LOAD ---------- */
+        // $(document).ready(() => loadVerticalExpenses());
+
         // Group filter change
         $('#groupFilter').on('change', function () {
             loadVerticalExpenses(currentStartDate, currentEndDate); // update with your date range vars
@@ -499,7 +604,7 @@ if (token) {
             });
 
             try {
-                const response = await fetch(baseurl + '/my-payables', {
+                const response = await fetch(baseurl + `/my-payables?startDate=${currentStartDate.format('DD/MM/YYYY')}&endDate=${currentEndDate.format('DD/MM/YYYY')}`, {
                     headers: {
                         'Authorization': token
                     }
@@ -536,7 +641,7 @@ if (token) {
             });
 
             try {
-                const response = await fetch(baseurl + '/my-receivings', {
+                const response = await fetch(baseurl + `/my-receivings?startDate=${currentStartDate.format('DD/MM/YYYY')}&endDate=${currentEndDate.format('DD/MM/YYYY')}`, {
                     headers: {
                         'Authorization': token
                     }

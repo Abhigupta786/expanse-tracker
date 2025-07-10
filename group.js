@@ -4,6 +4,7 @@ let selectedNames = [];
 let allGroups = [];
 let groupDatawithID = [];
 const token = localStorage.getItem('token');
+// const baseurl = "https://36935491-85e6-4715-a703-3b12004bc48a-00-377x9dhd5g2rw.worf.replit.dev"
 const baseurl = "https://expanse-tracker-api-a7b4.onrender.com"
 const currentUser = getUsernameFromToken(token);
 
@@ -400,7 +401,7 @@ document.addEventListener("DOMContentLoaded", function () {
             const displayedMembers = membersStr.length > 30 ? membersStr.slice(0, 30) + '...' : membersStr;
 
             // Badge HTML if invitations exist
-            const badgeHTML = group.invitations && group.invitations.length > 0 ? `
+            const badgeHTML = group.groupOwner===currentUser && group.invitations && group.invitations.length > 0 ? `
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" 
                   style="font-size: 0.7rem; transform: translate(-50%, 50%);">
                 ${group.invitations.length}
@@ -435,12 +436,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         new bootstrap.Modal(document.getElementById('groupDetailsModal')).show();
     }
-
+    let newGpMem = [];
     document.getElementById('groupDetailsModal').addEventListener('hidden.bs.modal', () => {
         // Remove the invitation button
         const invBtn = document.getElementById('invitationBtn');
         if (invBtn) invBtn.remove();
-
+        newGpMem=[];
         // Optionally clear other dynamic content like member pills or input fields if needed
         document.getElementById('memberPills').innerHTML = '';
         document.getElementById('newMemberEmail').value = '';
@@ -569,7 +570,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
-    const newGpMem = [];
+    
     document.getElementById('addMemberBtn2').addEventListener('click', () => {
         const input = document.getElementById('newMemberEmail');
         const name = input.value.trim();
@@ -773,7 +774,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.getElementById('addExpenseModal').addEventListener('shown.bs.modal', async () => {
         const token = localStorage.getItem('token');
-        const res = await fetch(baseurl + '/group-names', {
+        const res = await fetch(baseurl + '/my-groups', {
             headers: { 'Authorization': token }
         });
 

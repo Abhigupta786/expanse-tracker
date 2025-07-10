@@ -4,7 +4,6 @@ function setupSuggestionInput({ inputId, boxId, dataList, onSelect }) {
   const suggestionBox = document.getElementById(boxId);
 
   input.addEventListener('input', () => {
-    debugger;
     const query = input.value.trim().toLowerCase();
     const filtered = dataList.filter(item =>
       item.name.toLowerCase().includes(query)
@@ -123,7 +122,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
     // Switch to Signup Modal
     document.getElementById('showSignup').addEventListener('click', function () {
-      debugger;
       loginModal.hide();
       const signupModal = new bootstrap.Modal(document.getElementById('signupModal'), {
         backdrop: 'static',
